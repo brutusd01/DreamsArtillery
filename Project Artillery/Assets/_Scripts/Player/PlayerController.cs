@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using Cinemachine;
 
 public class PlayerController : MonoBehaviour
 {
@@ -12,10 +13,12 @@ public class PlayerController : MonoBehaviour
     public bool jumpInput;
     public Vector3 moveVector;
     Vector3 currentVelocity;
-
+    Vector3 camForward;
+    Vector3 camRight;
     void Awake()
     {
         if(rb == null)rb = gameObject.GetComponent<Rigidbody>();
+        //if (gameCamera == null) gameObject.GetComponentInChildren<CinemachineVirtualCamera>();
     }
 
     void OnEnable()
@@ -56,14 +59,13 @@ public class PlayerController : MonoBehaviour
 
     void CalculateMovement()
     {
-        Vector3 camForward = gameCamera.forward;
-        Vector3 camRight = gameCamera.right;
+        //camForward = gameCamera.forward;
+        //camRight = gameCamera.right;
 
-        camRight.y = camForward.y = 0;
-        Vector3 moveDir = (camRight.normalized * moveInput.x) + (camForward.normalized * moveInput.y);
+        //camRight.y = camForward.y = 0;
+        Vector3 moveDir = (transform.right.normalized * moveInput.x) + (transform.forward.normalized * moveInput.y);
         Vector3 targetSpeed = moveDir * walkSpeed;
         moveVector = Vector3.SmoothDamp(moveVector, targetSpeed, ref currentVelocity, .15f);
-        print(moveInput);
     }
     void Update()
     {
