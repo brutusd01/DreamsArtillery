@@ -6,21 +6,24 @@ public class PlayerController : MonoBehaviour
 {
     [SerializeField] private InputManager _inputManager;
     public Rigidbody rb;
+    CapsuleCollider playerCol;
     public float walkSpeed = 10f;
-    public float jumpHeight = 5f;
+    public float jumpForce = 5f;
     public Transform gameCamera;
     public Vector2 moveInput;
     public bool jumpInput;
     public Vector3 moveVector;
     Vector3 currentVelocity;
-    Vector3 camForward;
-    Vector3 camRight;
+    public LayerMask groundMask;
+
+    float distToGround;
     void Awake()
     {
         if(rb == null)rb = gameObject.GetComponent<Rigidbody>();
+        playerCol = GetComponent<CapsuleCollider>();
+        distToGround = playerCol.bounds.extents.y;
         //if (gameCamera == null) gameObject.GetComponentInChildren<CinemachineVirtualCamera>();
     }
-
     void OnEnable()
     {
         _inputManager.moveEvent += onMove;
@@ -28,7 +31,31 @@ public class PlayerController : MonoBehaviour
         _inputManager.jumpCanceledEvent += onJumpEnd;
         _inputManager.attack1Event += onFire1;
     }
-
+    void Update()
+    {
+        Grounded();
+        print(Grounded());
+        CalculateMovement();
+    }
+    void FixedUpdate()
+    {
+        rb.MovePosition(rb.position + moveVector * Time.fixedDeltaTime);
+    }
+    void Jump()
+    {
+        if(Grounded() && jumpInput == true)
+        {
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        }
+    }
+    private void OnDrawGizmos()
+    {
+        if(playerCol !=null)Gizmos.DrawSphere(new Vector3(rb.position.x, rb.position.y - distToGround, rb.position.z), playerCol.radius);
+    }
+    bool Grounded()
+    {
+        return Physics.CheckSphere(new Vector3(rb.position.x, rb.position.y - distToGround, rb.position.z), playerCol.radius, groundMask);
+    }
     void OnDisable()
     {
         _inputManager.moveEvent -= onMove;
@@ -59,20 +86,10 @@ public class PlayerController : MonoBehaviour
 
     void CalculateMovement()
     {
-        //camForward = gameCamera.forward;
-        //camRight = gameCamera.right;
-
-        //camRight.y = camForward.y = 0;
         Vector3 moveDir = (transform.right.normalized * moveInput.x) + (transform.forward.normalized * moveInput.y);
         Vector3 targetSpeed = moveDir * walkSpeed;
         moveVector = Vector3.SmoothDamp(moveVector, targetSpeed, ref currentVelocity, .15f);
-    }
-    void Update()
-    {
-        CalculateMovement();
-    }
-    void FixedUpdate()
-    {
-        rb.MovePosition(rb.position + transform.TransformDirection(moveVector) * Time.fixedDeltaTime);
+
+        Jump();
     }
 }
