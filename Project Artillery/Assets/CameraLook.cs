@@ -30,13 +30,13 @@ public class CameraLook : MonoBehaviour
 
     private void onLook(Vector2 input)
     {
-        var inputX = input.x * XSens * Time.deltaTime;
-        var inputY = input.y * YSens * Time.deltaTime;
+        var inputX = input.x * XSens;
+        var inputY = input.y * YSens;
 
         xRot -= inputY;
         xRot = Mathf.Clamp(xRot, -90f, 90f);
 
-        transform.localRotation =Quaternion.Euler(xRot, 0f, 0f);
+        transform.localRotation = Quaternion.Euler(xRot, 0f, 0f);
         playerObj.Rotate(Vector3.up * inputX);
     }
 
