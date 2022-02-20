@@ -34,7 +34,6 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         Grounded();
-        print(Grounded());
         CalculateMovement();
     }
     void FixedUpdate()
